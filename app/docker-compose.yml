@@ -1,0 +1,27 @@
+version: "3"
+services:
+  web:
+    container_name: "web"
+    build:
+      dockerfile: "./docker/web/Dockerfile"
+    ports:
+      - "8080:80"
+    # Localでの開発時は以下3行のコメントを外す
+    # volumes:
+    #   - ./src:/var/www/html
+    #   - ./docker/web/apache/default.conf:/etc/apache2/sites-enabled/000-default.conf
+    depends_on:
+      - db
+  db:
+    container_name: "db"
+    build:
+      dockerfile: "./docker/db/Dockerfile"
+    ports:
+      - "3306:3306"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_DATABASE=apprunnerdb"
+      - "MYSQL_USER=laravel"
+      - "MYSQL_PASSWORD=password"
+    volumes:
+      - "./docker/db/data:/var/lib/mysql"
