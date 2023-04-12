@@ -5,9 +5,12 @@ import { AppRunnerStack } from '../lib/cdk-app-runner-stack';
 import { BaseStack } from "../lib/cdk-base-stack";
 
 const app = new cdk.App();
-const base = new BaseStack(app, "BaseStack");
-new AppRunnerStack(app, 'AppRunnerStack', {
-  vpc: base.vpc,
-  containerRepository: base.containerRepository,
-  rdsV2: base.rdsV2,
+const baseStack = new BaseStack(app, "BaseStack");
+
+const apprunnerStack = new AppRunnerStack(app, 'AppRunnerStack', {
+  vpc: baseStack.vpc,
+  containerRepository: baseStack.containerRepository,
+  rdsV2: baseStack.rdsV2,
 });
+
+apprunnerStack.addDependency(baseStack);

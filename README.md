@@ -95,7 +95,10 @@ docker build -t app-runner . -f ./docker/web/Dockerfile
 
 BaseStackで作成したECRリポジトリに前の手順でビルドしたコンテナイメージをPushします。
 
+※ こちらのPushコマンドはマネジメントコンソールのECRのページからもご確認いただけます。
+
 まず、デプロイ先のアカウントIDを確認します。
+
 
 ```shell
 # アプリディレクトリからインフラディレクトリへ移動
@@ -138,28 +141,17 @@ docker push [BaseStack.RepositoryURI]:latest
 aws secretsmanager create-secret --name AppKey --secret-string base64:p6UzRqwZuOOZlSYfovvCaUM+tFGmcNrpQwm4dnmjues=
 ```
 
-以下のように出力されると思うので、**"ARN"** の値をメモします
-
-```shell
-# 出力例
-{
-    "ARN": "arn:aws:secretsmanager:ap-northeast-1:xxxxx:secret:AppKey-xxxx",
-    "Name": "AppKey",
-    "VersionId": "8830af0e-1816-4b8c-8929-1280beb902f2"
-}
-```
-
 ### CdkAppRunnerStackのデプロイ
 
 コンテナイメージプッシュ後、本スタックをデプロイし、App RunnerのサービスやWAFをデプロイします。  
 また、App RunnerにWAFのマネージドルールをアタッチします。
 
-**[appKeyarn]** の部分を先ほどメモした内容に置き換えてください。
+**appKeyArnの[AccountID]**の部分を先ほどメモしたアカウントIDに置き換えてください。  
+東京リージョン以外を使用している場合は**リージョン(ap-northeat-1)**も変更してください。
 
 ```shell
 # cdk-app-runner-stackのデプロイ
-# 例 npx cdk deploy AppRunnerStack -c appKeyarn=arn:aws:secretsmanager:ap-northeast-1:xxxxx:secret:AppKey-xxxx --require-approval never
-npx cdk deploy AppRunnerStack -c appKeyarn=[appKeyarn] --require-approval never
+npx cdk deploy AppRunnerStack -c appKeyArn=arn:aws:secretsmanager:ap-northeast-1:[AccountID]:secret:AppKey --require-approval never
 ```
 CDKのOutputsとして **AppRunnerStack.AppRunnerURI** が出力されると思うので、Webブラウザでアクセスしてみてください。
 
@@ -183,15 +175,16 @@ AppRunnerStack.AppRunnerURI = *******.ap-northeast-1.awsapprunner.com
 以下のコマンドでデプロイしたCDKスタックを削除します。
 ※Dockerイメージの削除については必要に応じて行ってください。
 
-なお **[appKeyarn]** の部分をコンテキストとして指定する必要があるので、先ほどメモした値、
+なお、**appKeyArnの[AccountID]**の部分をコンテキストとして指定する必要があるので、先ほどメモしたアカウントIDに置き換えてください。  
+東京リージョン以外を使用している場合は**リージョン(ap-northeat-1)**も変更してください。  
 あるいはマネジメントコンソールやCLI等で確認します。
 
 ```shell
 # 必要に応じてAppKeyのシークレットのarnを確認
 aws secretsmanager list-secrets
 
-# cdk destroyの実行（[appKeyarn]の書き換え必須）
-npx cdk destroy BaseStack  -c appKeyarn=[appKeyarn]
+# cdk destroyの実行（[appKeyArn]の書き換え必須）
+npx cdk destroy BaseStack  -c -c appKeyArn=arn:aws:secretsmanager:ap-northeast-1:[AccountID]:secret:AppKey
 ```
 コマンド内ではBaseStackのみ削除対象として指定しておりますが、依存関係としてAppRunnerStackも合わせて削除するか確認メッセージが出ますので **y**を入力します。
 

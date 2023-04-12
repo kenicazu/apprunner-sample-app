@@ -41,10 +41,13 @@ export class AppRunnerStack extends cdk.Stack {
     });
 
     //Define env in Secrets Manager 
-    const appKeyarn = this.node.tryGetContext('appKeyarn')
+    let appKeyArn = this.node.tryGetContext('appKeyArn')
+    if (appKeyArn == undefined)
+      appKeyArn = "arn:aws:secretsmanager:ap-northeast-1:************:secret:AppKey"
+
     const appKey = sm.Secret.fromSecretAttributes(this, "appKey", {
-      secretCompleteArn:
-        appKeyarn,
+      secretPartialArn:
+        appKeyArn,
     });
 
     // Define env in SSM Parameter Store
