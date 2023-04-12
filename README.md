@@ -68,8 +68,9 @@ npm ci
 # CDKをデプロイ先のリージョンで使えるように初期化する（以下コマンドはap-northeast-1の例）
 AWS_REGION=ap-northeast-1 npx cdk bootstrap
 ```
-
 ## デプロイ手順
+
+**エラーとなった場合はコマンドを実行しているディレクトリが正しいことを確認してください**
 ### BaseStackのデプロイ
 
 まずはじめにBaseStackをデプロイし、App Runnerでサービスを実行するために必要なVPCやDB（Aurora Serverless V2）、コンテナイメージを格納するためのECRプライベートリポジトリを作成します。
@@ -79,7 +80,7 @@ AWS_REGION=ap-northeast-1 npx cdk bootstrap
 npx cdk deploy BaseStack --require-approval never
 ```
 なお、CDKのOutputsとして **BaseStack.RepositoryURI** が出力されると思うので、メモしておいてください。  
-この後の手順で使用します。
+これは作成したECRリポジトリのURIになります。 この後の手順でこちらのリポジトリにコンテナをプッシュします。 
 
 ```shell
 # 出力例
