@@ -17,8 +17,10 @@ interface AppRunnerStackProps extends cdk.StackProps {
 }
 
 export class AppRunnerStack extends cdk.Stack {
+
   public readonly vpc: Vpc;
   public readonly containerRepository: aws_ecr.Repository;
+  public readonly rdsV2: rds.DatabaseCluster;
 
   constructor(scope: Construct, id: string, props: AppRunnerStackProps) {
     super(scope, id, props);
@@ -38,13 +40,14 @@ export class AppRunnerStack extends cdk.Stack {
       stringValue: 'testing',
     });
 
-    // Define env in SSM Parameter Store
+    //Define env in Secrets Manager 
     const appKeyarn = this.node.tryGetContext('appKeyarn')
     const appKey = sm.Secret.fromSecretAttributes(this, "appKey", {
       secretCompleteArn:
         appKeyarn,
     });
 
+    // Define env in SSM Parameter Store
     const appDebug = new ssm.StringParameter(this, 'appDebug', {
       parameterName: 'appDebug',
       stringValue: 'true',
@@ -135,6 +138,8 @@ export class AppRunnerStack extends cdk.Stack {
       webAclArn: appWaf.attrArn,
       resourceArn: appRunner.serviceArn,
     });
+
+    // Output URI for App Runner Service
     new CfnOutput(this, "App-Runner-URI", { value: appRunner.serviceUrl });
   }
 }
