@@ -16,6 +16,12 @@ AWS環境ではなく、ローカルで動かしたい場合は **[ローカル�
 
 ![全体のアーキテクチャ図](./imgs/architecture.png)
 
+## 画面イメージ
+
+![イメージ図1](./imgs/appimage1.png)
+
+![イメージ図2](./imgs/appimage2.png)
+
 ## ディレクトリ構成
 
 以下は重要なファイル·ディレクトリのみ記載しています。
@@ -117,7 +123,7 @@ aws sts get-caller-identity # "Account": "**********"と出力されます
 # ECRに対する認証
 aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin [AccountID].dkr.ecr.ap-northeast-1.amazonaws.com
 ```
-作成済みのコンテナイメージ「app-runner:latest」をECRにプッシュします。  
+作成済みのコンテナイメージ **app-runner:latest** をECRにプッシュします。  
 **[BaseStack.RepositoryURI]** の部分を先ほどメモした内容に置き換えてください。
 
 ```shell
@@ -134,7 +140,9 @@ docker push [BaseStack.RepositoryURI]:latest
 
 コンテナで使用する環境変数（APP_KEY）をSecrets Managerに登録します。
 
-※本来であれば、シークレット情報はコードリポジトリ上にアップするべきではないです。そのため、シークレットのarnを用いて、スタック内でシークレットの値を参照します。他にもDB接続用のシークレット（パスワード等）をセットしますが、いずれもシークレットの値自体はコード上に記述しておりません。
+※本来であれば、シークレット情報はコードリポジトリ上にアップするべきではないです。  
+そのため、シークレットのarnを用いて、スタック内でシークレットの値を参照します。  
+他にもDB接続用のシークレット（パスワード等）をセットしますが、いずれもシークレットの値自体はコード上に記述しておりません。
 
 ```shell
 # APP_KEYの値をAppKeyとしてSecrets Managerに登録
@@ -146,8 +154,8 @@ aws secretsmanager create-secret --name AppKey --secret-string base64:p6UzRqwZuO
 コンテナイメージプッシュ後、本スタックをデプロイし、App RunnerのサービスやWAFをデプロイします。  
 また、App RunnerにWAFのマネージドルールをアタッチします。
 
-**appKeyArnの[AccountID]**の部分を先ほどメモしたアカウントIDに置き換えてください。  
-東京リージョン以外を使用している場合は**リージョン(ap-northeat-1)**も変更してください。
+appKeyArnの **[AccountID]** を先ほどメモしたアカウントIDに置き換えてください。  
+東京リージョン以外を使用している場合は **リージョン(ap-northeat-1)** も変更してください。
 
 ```shell
 # cdk-app-runner-stackのデプロイ
@@ -162,7 +170,7 @@ AppRunnerStack.AppRunnerURI = *******.ap-northeast-1.awsapprunner.com
 
 ### デプロイしたアプリケーションの動作確認や設定の確認
 
-無事にApp Runner上にNoteアプリケーションがデプロイされました。
+無事にApp Runner上にNoteアプリケーションがデプロイされました。  
 ノートの内容を追加してみたりしてみてください。
 
 ![画面イメージ図](./imgs/website-image.png)
@@ -172,19 +180,21 @@ AppRunnerStack.AppRunnerURI = *******.ap-northeast-1.awsapprunner.com
 
 ## リソースのクリーンアップ
 
-以下のコマンドでデプロイしたCDKスタックを削除します。
+以下のコマンドでデプロイしたCDKスタックを削除します。  
 ※Dockerイメージの削除については必要に応じて行ってください。
 
-なお、**appKeyArnの[AccountID]**の部分をコンテキストとして指定する必要があるので、先ほどメモしたアカウントIDに置き換えてください。  
+**[AccountID]** を先ほどメモしたアカウントIDに置き換えてください。  
+メモが残っていない場合はマネジメントコンソールやCLI等で確認します。
+
 東京リージョン以外を使用している場合は**リージョン(ap-northeat-1)**も変更してください。  
-あるいはマネジメントコンソールやCLI等で確認します。
+
 
 ```shell
-# 必要に応じてAppKeyのシークレットのarnを確認
-aws secretsmanager list-secrets
+# 必要に応じてアカウントID野確認
+aws sts get-caller-identity # "Account": "**********"と出力されます
 
 # cdk destroyの実行（[appKeyArn]の書き換え必須）
-npx cdk destroy BaseStack  -c -c appKeyArn=arn:aws:secretsmanager:ap-northeast-1:[AccountID]:secret:AppKey
+npx cdk destroy BaseStack  -c appKeyArn=arn:aws:secretsmanager:ap-northeast-1:[AccountID]:secret:AppKey
 ```
 コマンド内ではBaseStackのみ削除対象として指定しておりますが、依存関係としてAppRunnerStackも合わせて削除するか確認メッセージが出ますので **y**を入力します。
 
