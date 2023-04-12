@@ -64,7 +64,7 @@ export class BaseStack extends cdk.Stack {
       }
     })
 
-    new CfnOutput(this, "Repository-Uri", { value: this.containerRepository.repositoryUri });
+    new CfnOutput(this, "RepositoryUri", { value: this.containerRepository.repositoryUri });
 
   }
 }
