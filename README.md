@@ -5,8 +5,9 @@
 
 このサンプルアプリケーションではCDKを用いて、AWS上に以下のリソースを作成します。
 - VPC , ECR Private Repository
-- App Runner Service,、Aurora Serverless V2（Writer,Readerそれぞれ1インスタンスずつ）
+- App Runner Service, Aurora Serverless V2（Writer,Readerそれぞれ1インスタンスずつ）
 - WAF Web ACL (App Runner にアタッチ)
+- Systems Manager, SSM Parameter Store（DB接続に必要な環境変数等）
 
 なお、Docker Composeを用いてローカル環境上にもアプリケーションをデプロイ可能になっています。  
 AWS環境ではなく、ローカルで動かしたい場合は **[ローカル環境のセットアップ手順](./app/README.md)** を参考にしてください。
@@ -150,7 +151,7 @@ docker push [BaseStack.RepositoryURI]:latest
 aws secretsmanager create-secret --name AppKey --secret-string base64:p6UzRqwZuOOZlSYfovvCaUM+tFGmcNrpQwm4dnmjues=
 ```
 
-### CdkAppRunnerStackのデプロイ
+### AppRunnerStackのデプロイ
 
 コンテナイメージプッシュ後、本スタックをデプロイし、App RunnerのサービスやWAFをデプロイします。  
 また、App RunnerにWAFのマネージドルールをアタッチします。
