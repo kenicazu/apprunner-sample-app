@@ -64,6 +64,7 @@ export class AppRunnerStack extends cdk.Stack {
 
     // Create App Runner Service
     const appRunner = new apprunner.Service(this, 'Service', {
+      serviceName: `NoteApp`,
       autoDeploymentsEnabled: true,
       source: apprunner.Source.fromEcr({
         imageConfiguration: {
