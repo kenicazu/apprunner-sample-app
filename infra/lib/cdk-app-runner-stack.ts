@@ -9,7 +9,6 @@ import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as rds from 'aws-cdk-lib/aws-rds'
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import * as sm from "aws-cdk-lib/aws-secretsmanager";
-import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import * as imagedeploy from 'cdk-docker-image-deployment';
 
 interface AppRunnerStackProps extends cdk.StackProps {
@@ -67,11 +66,11 @@ export class AppRunnerStack extends cdk.Stack {
       'App-Runner-Repo',
       props.containerRepository.repositoryName
     )
-    
+
     // Create Docker Image
     new imagedeploy.DockerImageDeployment(
       this,
-      "ExampleImageDeploymentWithTag",
+      "AppRunnerImage",
       {
         source: imagedeploy.Source.directory(
           path.join(__dirname, '../../app/docker/web'),
