@@ -3,8 +3,8 @@ FROM php:apache-bullseye
 # composer install
 COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
-COPY php.ini /usr/local/etc/php/php.ini
-COPY init.sh /tmp/init.sh
+COPY ./docker/web/php.ini /usr/local/etc/php/php.ini
+COPY ./docker/web/init.sh /tmp/init.sh
 
 RUN apt-get update && apt-get install -y zip git libzip-dev
 RUN docker-php-ext-install pdo_mysql
