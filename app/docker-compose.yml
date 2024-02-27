@@ -3,13 +3,13 @@ services:
   web:
     container_name: "web"
     build:
-      dockerfile: "./docker/web/Dockerfile"
+      dockerfile: "./docker/web/Dockerfile-local"
     ports:
       - "8080:80"
     # Localでの開発時は以下3行のコメントを外す
-    # volumes:
-    #   - ./src:/var/www/html
-    #   - ./docker/web/apache/default.conf:/etc/apache2/sites-enabled/000-default.conf
+    volumes:
+      - ./docker/web/src:/var/www/html
+      - ./docker/web/apache/default.conf:/etc/apache2/sites-enabled/000-default.conf
     depends_on:
       - db
   db:
