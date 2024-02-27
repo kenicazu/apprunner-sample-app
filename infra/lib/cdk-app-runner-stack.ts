@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as path from 'path';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
@@ -8,7 +9,8 @@ import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as rds from 'aws-cdk-lib/aws-rds'
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import * as sm from "aws-cdk-lib/aws-secretsmanager";
-
+import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
+import * as imagedeploy from 'cdk-docker-image-deployment';
 
 interface AppRunnerStackProps extends cdk.StackProps {
   vpc: ec2.Vpc;
@@ -61,6 +63,24 @@ export class AppRunnerStack extends cdk.Stack {
       stringValue: 'stdout',
     });
 
+    const repo = aws_ecr.Repository.fromRepositoryName(this,
+      'App-Runner-Repo',
+      props.containerRepository.repositoryName
+    )
+    
+    // Create Docker Image
+    new imagedeploy.DockerImageDeployment(
+      this,
+      "ExampleImageDeploymentWithTag",
+      {
+        source: imagedeploy.Source.directory(
+          path.join(__dirname, '../../app/docker/web'),
+        ),
+        destination: imagedeploy.Destination.ecr(repo, {
+          tag: "latest",
+        }),
+      }
+    );
 
     // Create App Runner Service
     const appRunner = new apprunner.Service(this, 'Service', {
@@ -84,7 +104,7 @@ export class AppRunnerStack extends cdk.Stack {
             LOG_CHANNEL: logChannel.stringValue,
           },
         },
-        repository: aws_ecr.Repository.fromRepositoryName(this, 'App-Runner-Repo', props.containerRepository.repositoryName),
+        repository: repo,
         tagOrDigest: 'latest',
       }),
       vpcConnector,
